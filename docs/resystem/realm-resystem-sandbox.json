@@ -1,0 +1,143 @@
+{
+  "id": "resystem-sandbox",
+  "realm": "resystem-sandbox",
+  "displayName": "Resystem Sandbox",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "resetPasswordAllowed": true,
+  "internationalizationEnabled": true,
+  "supportedLocales": ["en"],
+  "defaultLocale": "en",
+  "rememberMe": true,
+  "verifyEmail": true,
+  "loginWithEmailAllowed": true,
+  "requiredCredentials": ["password"],
+  "defaultRoles": ["resystem-user"],
+  "roles": {
+    "realm": [
+      {"name": "resystem-user", "description": "Baseline access to Resystem sandbox apps"},
+      {"name": "platform-admin", "description": "Full administrative access to the sandbox"},
+      {"name": "operations", "description": "Operational support"},
+      {"name": "auditor", "description": "Read-only sandbox visibility"},
+      {"name": "tenant-admin", "description": "Delegated tenant administrator"},
+      {"name": "tenant-user", "description": "Standard tenant user"}
+    ],
+    "client": {}
+  },
+  "groups": [
+    {"name": "platform-admins", "path": "/platform-admins", "realmRoles": ["platform-admin"]},
+    {"name": "operations", "path": "/operations", "realmRoles": ["operations"]},
+    {"name": "auditors", "path": "/auditors", "realmRoles": ["auditor"]},
+    {"name": "tenants", "path": "/tenants", "subGroups": [
+      {"name": "tenant-admins", "path": "/tenants/tenant-admins", "realmRoles": ["tenant-admin"]},
+      {"name": "tenant-users", "path": "/tenants/tenant-users", "realmRoles": ["tenant-user", "resystem-user"]}
+    ]}
+  ],
+  "defaultGroups": ["/tenants/tenant-users"],
+  "clients": [
+    {
+      "clientId": "resystem-console-sandbox",
+      "name": "Resystem Administration Console (Sandbox)",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "CHANGE_ME",
+      "redirectUris": [
+        "https://console.sandbox.resystem.example/*"
+      ],
+      "webOrigins": ["+"],
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "fullScopeAllowed": false,
+      "defaultClientScopes": ["profile", "email", "web-origins", "role_list"],
+      "optionalClientScopes": ["address", "phone", "offline_access"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "https://console.sandbox.resystem.example/*"
+      },
+      "authorizationServicesEnabled": true
+    },
+    {
+      "clientId": "resystem-api-sandbox",
+      "name": "Resystem API (Sandbox)",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "bearerOnly": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "fullScopeAllowed": false,
+      "authorizationServicesEnabled": false
+    }
+  ],
+  "clientScopes": [
+    {
+      "name": "resystem-groups",
+      "description": "Maps group path and realm roles into tokens",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "group-path",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-group-membership-mapper",
+          "consentRequired": false,
+          "config": {
+            "full.path": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "claim.name": "groups"
+          }
+        },
+        {
+          "name": "realm-roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "realm_roles"
+          }
+        }
+      ]
+    }
+  ],
+  "defaultClientScopes": ["profile", "email", "roles", "web-origins", "resystem-groups"],
+  "users": [
+    {
+      "username": "sandbox-admin",
+      "enabled": true,
+      "email": "sandbox-admin@resystem.example",
+      "emailVerified": true,
+      "firstName": "Sandbox",
+      "lastName": "Admin",
+      "realmRoles": ["platform-admin"],
+      "groups": ["/platform-admins"],
+      "credentials": [
+        {"type": "password", "value": "CHANGE_ME", "temporary": true}
+      ]
+    },
+    {
+      "username": "sandbox-tenant",
+      "enabled": true,
+      "email": "sandbox-tenant@resystem.example",
+      "emailVerified": true,
+      "firstName": "Sandbox",
+      "lastName": "Tenant",
+      "realmRoles": ["tenant-admin"],
+      "groups": ["/tenants/tenant-admins"],
+      "credentials": [
+        {"type": "password", "value": "CHANGE_ME", "temporary": true}
+      ]
+    }
+  ]
+}
